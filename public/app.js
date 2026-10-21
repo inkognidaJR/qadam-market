@@ -1,56 +1,3 @@
-
-// Persisted appearance and interface language (ru / kk / en).
-const uiTranslations = {
-  ru: { "Главная":"Главная","Каталог":"Каталог","О нас":"О нас","Отзывы":"Отзывы","Контакты":"Контакты","Корзина":"Корзина","Прямые закупки сельхозпродукции Казахстана":"Прямые закупки сельхозпродукции Казахстана","ОТ ФЕРМЕРА К ПОКУПАТЕЛЮ":"ОТ ФЕРМЕРА К ПОКУПАТЕЛЮ","Перейти в каталог":"Перейти в каталог","Почему Qadam Market?":"Почему Qadam Market?","Найдите":"Найдите","нужное.":"нужное.","Весь каталог":"Весь каталог","Популярные":"Популярные","товары.":"товары.","Сбросить фильтры ↺":"Сбросить фильтры ↺","Смотреть весь каталог":"Смотреть весь каталог","Итого":"Итого","Перейти к оформлению":"Перейти к оформлению","Наверх ↑":"Наверх ↑" },
-  kk: { "Главная":"Басты бет","Каталог":"Каталог","О нас":"Біз туралы","Отзывы":"Пікірлер","Контакты":"Байланыс","Корзина":"Себет","Прямые закупки сельхозпродукции Казахстана":"Қазақстанның ауыл шаруашылығы өнімдерін тікелей сатып алу","ОТ ФЕРМЕРА К ПОКУПАТЕЛЮ":"ФЕРМЕРДЕН САТЫП АЛУШЫҒА","Перейти в каталог":"Каталогқа өту","Почему Qadam Market?":"Неліктен Qadam Market?","Найдите":"Табыңыз","нужное.":"қажет өнімді.","Весь каталог":"Барлық каталог","Популярные":"Танымал","товары.":"өнімдер.","Сбросить фильтры ↺":"Сүзгілерді тазарту ↺","Смотреть весь каталог":"Барлық өнімді көру","Итого":"Барлығы","Перейти к оформлению":"Рәсімдеуге өту","Наверх ↑":"Жоғары ↑" },
-  en: { "Главная":"Home","Каталог":"Catalog","О нас":"About","Отзывы":"Reviews","Контакты":"Contact","Корзина":"Cart","Прямые закупки сельхозпродукции Казахстана":"Direct agricultural sourcing in Kazakhstan","ОТ ФЕРМЕРА К ПОКУПАТЕЛЮ":"FROM FARMER TO BUYER","Перейти в каталог":"Browse catalog","Почему Qadam Market?":"Why Qadam Market?","Найдите":"Find","нужное.":"what you need.","Весь каталог":"Full catalog","Популярные":"Popular","товары.":"products.","Сбросить фильтры ↺":"Reset filters ↺","Смотреть весь каталог":"View all products","Итого":"Total","Перейти к оформлению":"Proceed to checkout","Наверх ↑":"Back to top" }
-};
-const languageSelect = document.getElementById('languageSelect');
-const themeToggle = document.getElementById('themeToggle');
-const originalTextNodes = [];
-function applyLanguage(lang) {
-  document.documentElement.lang = lang === 'kk' ? 'kk' : lang;
-  if (!originalTextNodes.length) {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    while (walker.nextNode()) {
-      const node = walker.currentNode;
-      if (node.nodeValue.trim()) originalTextNodes.push({node, original: node.nodeValue});
-    }
-  }
-  const dict = uiTranslations[lang] || uiTranslations.ru;
-  originalTextNodes.forEach(({node, original}) => {
-    let value = original;
-    Object.entries(dict).forEach(([from,to]) => {
-      if (value.trim() === from) value = value.replace(from,to);
-    });
-    node.nodeValue = value;
-  });
-  const placeholders = {
-    ru: ['Найти продукцию…','Все категории','Все регионы'],
-    kk: ['Өнімді іздеу…','Барлық санаттар','Барлық өңірлер'],
-    en: ['Search products…','All categories','All regions']
-  }[lang] || [];
-  const search = document.getElementById('searchInput');
-  if(search) search.placeholder = placeholders[0];
-  const category = document.getElementById('categoryFilter');
-  if(category && category.options[0]) category.options[0].textContent = placeholders[1];
-  const region = document.getElementById('ageFilter');
-  if(region && region.options[0]) region.options[0].textContent = placeholders[2];
-  localStorage.setItem('qadamLanguage',lang);
-}
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  themeToggle.textContent = theme === 'dark' ? '☀' : '☾';
-  themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Светлая тема' : 'Тёмная тема');
-  themeToggle.title = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
-  localStorage.setItem('qadamTheme',theme);
-}
-languageSelect.addEventListener('change', e => applyLanguage(e.target.value));
-themeToggle.addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
-applyTheme(localStorage.getItem('qadamTheme') || 'light');
-languageSelect.value = localStorage.getItem('qadamLanguage') || 'ru';
-applyLanguage(languageSelect.value);
-
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const money = n => new Intl.NumberFormat('ru-RU').format(Number(n)||0) + ' ₸';
@@ -106,3 +53,47 @@ document.addEventListener('submit',async e=>{
  if(e.target.id==='adminSettingsForm'){e.preventDefault();const p=Object.fromEntries(new FormData(e.target).entries());p.heroTitle=p.heroTitle.replace('мы спокойны','\nмы спокойны');try{settings=await api('/api/settings',{method:'PUT',headers:adminAuthHeaders(),body:JSON.stringify(p)});$('#heroTitle').innerHTML=esc(settings.heroTitle).replace(/\n/g,'<br>').replace('мы спокойны.','<em>мы спокойны.</em>');$('#heroText').textContent=settings.heroText;document.querySelector('.hero-image').style.backgroundImage=`url("${(settings.heroImage||'').replace(/["\\]/g,'')}")`;$('#promoCode').textContent=(settings.promo||'').match(/TAILS\w*/i)?.[0]||'TAILS15';toast('Настройки сохранены!')}catch(err){toast(err.message)}return}
 });
 loadData();
+
+
+// Persistent theme and 3-language interface controls.
+(() => {
+  const translations = {
+    ru: {navHome:'Главная',navCatalog:'Каталог',navAbout:'О нас',navReviews:'Отзывы',navContacts:'Контакты',cart:'Корзина',heroEyebrow:'ОТ ФЕРМЕРА К ПОКУПАТЕЛЮ',heroTitle:'От фермеров —<br><em>к вашему столу.</em>',heroText:'Цифровая платформа прямых закупок сельхозпродукции в Казахстане. Честные цены, надёжные поставщики и удобные сделки.',catalogBtn:'Перейти в каталог',why:'Почему Qadam Market?',searchPlaceholder:'Найти продукцию…',allCategories:'Все категории',allRegions:'Все регионы',featured:'Сначала рекомендуемые',cheap:'Сначала дешевле',expensive:'Сначала дороже',rating:'По рейтингу',themeLight:'Светлая тема',themeDark:'Тёмная тема'},
+    kk: {navHome:'Басты бет',navCatalog:'Каталог',navAbout:'Біз туралы',navReviews:'Пікірлер',navContacts:'Байланыс',cart:'Себет',heroEyebrow:'ФЕРМЕРДЕН САТЫП АЛУШЫҒА',heroTitle:'Фермерден —<br><em>дастарқаныңызға.</em>',heroText:'Қазақстандағы ауыл шаруашылығы өнімдерін тікелей сатып алуға арналған цифрлық платформа. Әділ баға, сенімді жеткізушілер және ыңғайлы мәмілелер.',catalogBtn:'Каталогқа өту',why:'Неліктен Qadam Market?',searchPlaceholder:'Өнімді іздеу…',allCategories:'Барлық санаттар',allRegions:'Барлық өңірлер',featured:'Ұсынылғандар алдымен',cheap:'Алдымен арзанырақ',expensive:'Алдымен қымбатырақ',rating:'Рейтинг бойынша',themeLight:'Ашық тақырып',themeDark:'Қараңғы тақырып'},
+    en: {navHome:'Home',navCatalog:'Catalog',navAbout:'About us',navReviews:'Reviews',navContacts:'Contact',cart:'Cart',heroEyebrow:'FROM FARMER TO BUYER',heroTitle:'From local farms —<br><em>to your table.</em>',heroText:'A digital platform for direct agricultural purchases in Kazakhstan. Fair prices, trusted suppliers and convenient transactions.',catalogBtn:'Browse catalog',why:'Why Qadam Market?',searchPlaceholder:'Search products…',allCategories:'All categories',allRegions:'All regions',featured:'Recommended first',cheap:'Price: low to high',expensive:'Price: high to low',rating:'By rating',themeLight:'Light theme',themeDark:'Dark theme'}
+  };
+  const langEl = document.getElementById('languageSwitcher');
+  const themeBtn = document.getElementById('themeToggle');
+  if (!langEl || !themeBtn) return;
+  const applyTheme = value => {
+    const theme = value === 'dark' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+    themeBtn.textContent = theme === 'dark' ? '☀' : '☾';
+    themeBtn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    themeBtn.title = theme === 'dark' ? 'Светлая тема / Light theme' : 'Тёмная тема / Dark theme';
+    localStorage.setItem('qadamTheme', theme);
+  };
+  const applyLanguage = value => {
+    const lang = translations[value] ? value : 'ru';
+    const t = translations[lang];
+    document.documentElement.lang = lang;
+    langEl.value = lang;
+    const nav = document.querySelectorAll('#mainNav a');
+    [t.navHome,t.navCatalog,t.navAbout,t.navReviews,t.navContacts].forEach((label,i)=>{if(nav[i])nav[i].textContent=label});
+    const cartLabel = document.querySelector('#cartOpen span:nth-child(2)'); if(cartLabel)cartLabel.textContent=t.cart;
+    const eyebrow = document.querySelector('.hero-copy .eyebrow'); if(eyebrow)eyebrow.innerHTML='<span class="eyebrow-line"></span> '+t.heroEyebrow;
+    const heroTitle=document.getElementById('heroTitle'); if(heroTitle)heroTitle.innerHTML=t.heroTitle;
+    const heroText=document.getElementById('heroText'); if(heroText)heroText.textContent=t.heroText;
+    const heroBtn=document.querySelector('.hero-actions .btn'); if(heroBtn)heroBtn.innerHTML=t.catalogBtn+' <span>↗</span>';
+    const why=document.querySelector('.hero-actions .text-link'); if(why)why.innerHTML=t.why+' <span>→</span>';
+    const search=document.getElementById('searchInput'); if(search)search.placeholder=t.searchPlaceholder;
+    const cat=document.getElementById('categoryFilter'); if(cat&&cat.options[0])cat.options[0].textContent=t.allCategories;
+    const region=document.getElementById('ageFilter'); if(region&&region.options[0])region.options[0].textContent=t.allRegions;
+    const sort=document.getElementById('sortFilter'); if(sort){const labels=[t.featured,t.cheap,t.expensive,t.rating];[...sort.options].forEach((o,i)=>{if(labels[i])o.textContent=labels[i]})}
+    localStorage.setItem('qadamLanguage',lang);
+  };
+  themeBtn.addEventListener('click',()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+  langEl.addEventListener('change',()=>applyLanguage(langEl.value));
+  applyTheme(localStorage.getItem('qadamTheme') || 'light');
+  applyLanguage(localStorage.getItem('qadamLanguage') || 'ru');
+})();
