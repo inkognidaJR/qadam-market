@@ -93,10 +93,10 @@
   ],
   "settings": {
     "storeName": "Qadam Market",
-    "heroTitle": "От фермеров —\nк вашему столу.",
-    "heroText": "Цифровая платформа прямых закупок сельхозпродукции в Казахстане. Честные цены, надёжные поставщики и удобные сделки.",
+    "heroTitle": "Свежий урожай.\nЧестные цены.",
+    "heroText": "Фермерские продукты напрямую от хозяйств Казахстана — для вашего стола.",
     "promo": "Прямые закупки без посредников",
-    "heroImage": "https://images.unsplash.com/photo-1500382017468-9049fed9a7a5?auto=format&fit=crop&w=1800&q=90"
+    "heroImage": "/images/qadam-farm-hero.png"
   },
   "orders": []
 }
